@@ -41,6 +41,8 @@ module.exports = grammar({
     [$.array_type],
     // lol: size_of(Map_Cell(T){}.data) / size_of(T) when size_of(T) > 0 else 1
     [$._expression_no_tag, $.struct],
+    // Tuple identifiers can be unnamed types or grouped result names.
+    [$._tuple_type_element, $.named_type],
   ],
 
   externals: $ => [
@@ -697,8 +699,11 @@ module.exports = grammar({
 
     address: $ => seq($.expression, '^'),
 
-    type: $ => prec.right(choice(
-      $.identifier,
+    type: $ => prec.right(choice($.identifier, $._non_identifier_type)),
+
+    _tuple_type_element: $ => choice($.identifier, prec.right($._non_identifier_type)),
+
+    _non_identifier_type: $ => choice(
       $.pointer_type,
       $.variadic_type,
       $.array_type,
@@ -719,7 +724,7 @@ module.exports = grammar({
       $.polymorphic_type,
       $.conditional_type,
       '...',
-    )),
+    ),
 
     pointer_type: $ => prec.left(seq('^', $.type)),
 
@@ -760,7 +765,7 @@ module.exports = grammar({
     tuple_type: $ => seq(
       '(',
       optional(seq(
-        commaSep1(choice($.type, $.named_type, $.default_type)),
+        commaSep1(choice(alias($._tuple_type_element, $.type), $.named_type, $.default_type)),
         optional(','),
       )),
       ')',
@@ -809,7 +814,11 @@ module.exports = grammar({
       '}',
     ),
 
-    named_type: $ => prec.right(seq(commaSep1($.identifier), ':', $.type, optional(seq('=', $.literal)))),
+    named_type: $ => seq(
+      commaSep1($.identifier),
+      // Associate the type only after ':' resolves the result-name ambiguity.
+      prec.right(seq(':', $.type, optional(seq('=', $.literal)))),
+    ),
 
     default_type: $ => seq($.identifier, ':=', $.expression),
 
