@@ -116,6 +116,8 @@
 
 (call_expression function: (identifier) @function.call)
 
+(call_expression function: (member_expression (identifier) @function.call .))
+
 ; Types
 
 (type (identifier) @type)
@@ -145,6 +147,12 @@
 (const_declaration (identifier) @type "::" [(array_type) (distinct_type) (bit_set_type) (pointer_type)])
 
 (struct . (identifier) @type)
+
+(struct . (member_expression (identifier) @type .))
+
+(struct . (call_expression function: (identifier) @type))
+
+(struct . (call_expression function: (member_expression (identifier) @type .)))
 
 (field_type . (identifier) @module "." (identifier) @type)
 
@@ -222,6 +230,7 @@
   "+"
   "-"
   "*"
+  "**"
   "/"
   "%"
   "%%"

@@ -11,8 +11,10 @@ enum {
     NL_COMMA,
     FLOAT,
     BLOCK_COMMENT,
-    BRACKET,
+    BLOCK_START,
     QUOTE,
+    MULTILINE_STRING_CONTENT,
+    MULTILINE_RAW_STRING_CONTENT,
 };
 
 static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
@@ -26,6 +28,40 @@ unsigned tree_sitter_odin_external_scanner_serialize(void *payload, char *buffer
 void tree_sitter_odin_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {}
 
 bool tree_sitter_odin_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    // These tokens take priority over comment extras inside multiline strings.
+    if (valid_symbols[MULTILINE_STRING_CONTENT] || valid_symbols[MULTILINE_RAW_STRING_CONTENT]) {
+        if (valid_symbols[MULTILINE_STRING_CONTENT] && valid_symbols[MULTILINE_RAW_STRING_CONTENT]) {
+            return false; // Both are enabled during error recovery, not inside a valid string.
+        }
+        const bool raw = valid_symbols[MULTILINE_RAW_STRING_CONTENT];
+        const int32_t quote = raw ? '`' : '"';
+        bool consumed = false;
+        lexer->mark_end(lexer);
+        while (!lexer->eof(lexer)) {
+            if (!raw && lexer->lookahead == '\\') {
+                break;
+            }
+            if (lexer->lookahead == quote) {
+                unsigned quotes = 0;
+                while (quotes < 3 && lexer->lookahead == quote) {
+                    advance(lexer);
+                    quotes++;
+                }
+                if (quotes == 3) {
+                    break; // Keep the closing delimiter outside the content token.
+                }
+            } else {
+                advance(lexer);
+            }
+            consumed = true;
+            lexer->mark_end(lexer);
+        }
+        if (consumed) {
+            lexer->result_symbol = raw ? MULTILINE_RAW_STRING_CONTENT : MULTILINE_STRING_CONTENT;
+        }
+        return consumed;
+    }
+
     if (valid_symbols[FLOAT]) {
         while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
             skip(lexer);
@@ -67,6 +103,7 @@ bool tree_sitter_odin_external_scanner_scan(void *payload, TSLexer *lexer, const
                         lexer->mark_end(lexer);
                         if (!isdigit(lexer->lookahead) && (found_number_after_decimal || found_number_before_decimal)) {
                             lexer->result_symbol = FLOAT;
+                            lexer->mark_end(lexer);
                             return true;
                         }
                     }
@@ -85,6 +122,12 @@ bool tree_sitter_odin_external_scanner_scan(void *payload, TSLexer *lexer, const
                         return true;
                     }
                     goto newline;
+                case '_':
+                    if (!found_number_before_decimal && !found_number_after_decimal) {
+                        goto newline;
+                    }
+                    advance(lexer);
+                    break;
                 case 'e':
                 case 'E':
                     if ((found_exponent) && (found_number_after_decimal || found_number_before_decimal)) {
@@ -102,6 +145,11 @@ bool tree_sitter_odin_external_scanner_scan(void *payload, TSLexer *lexer, const
                 case '-':
                     if (i == 0 || (found_exponent && !found_number_after_expontent)) {
                         advance(lexer);
+                    } else if ((found_decimal || found_exponent) &&
+                               (found_number_after_decimal || found_number_before_decimal)) {
+                        lexer->result_symbol = FLOAT;
+                        lexer->mark_end(lexer);
+                        return true;
                     } else {
                         goto newline;
                     }
@@ -166,18 +214,17 @@ newline:
             lexer->result_symbol = NEWLINE;
             lexer->mark_end(lexer);
 
-            uint32_t nl_count = 0;
-
             while (iswspace(lexer->lookahead)) {
-                if (lexer->lookahead == '\n') {
-                    nl_count++;
-                }
                 skip(lexer);
             }
 
             const char *where = "where";
             const char *_else = "else";
-            const char *bracket = "{";
+
+            // Only body braces suppress a separator; initializer braces do not.
+            if (lexer->lookahead == '{' && valid_symbols[BLOCK_START]) {
+                return false;
+            }
 
             char next_word[6] = {0};
 
@@ -198,10 +245,6 @@ newline:
                 goto backslash;
             }
 
-            if (strcmp(next_word, bracket) == 0 && nl_count == 0 && valid_symbols[BRACKET]) {
-                return false;
-            }
-
             return true;
         }
         // if (lexer->lookahead == ';') {
@@ -216,6 +259,10 @@ newline:
     }
 
 backslash:
+    while (iswspace(lexer->lookahead)) {
+        skip(lexer);
+    }
+
     if (valid_symbols[BACKSLASH] && lexer->lookahead == '\\') {
         advance(lexer);
         if (lexer->lookahead == '\n') {
@@ -230,6 +277,13 @@ backslash:
 
     while (iswspace(lexer->lookahead)) {
         skip(lexer);
+    }
+
+    if (valid_symbols[BLOCK_START] && lexer->lookahead == '{') {
+        advance(lexer);
+        lexer->mark_end(lexer);
+        lexer->result_symbol = BLOCK_START;
+        return true;
     }
 
     if (valid_symbols[BLOCK_COMMENT] && lexer->lookahead == '/') {

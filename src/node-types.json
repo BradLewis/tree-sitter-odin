@@ -508,6 +508,11 @@
     ]
   },
   {
+    "type": ":=",
+    "named": false,
+    "fields": {}
+  },
+  {
     "type": "address",
     "named": true,
     "fields": {},
@@ -707,7 +712,15 @@
         "required": true,
         "types": [
           {
+            "type": "array_type",
+            "named": true
+          },
+          {
             "type": "expression",
+            "named": true
+          },
+          {
+            "type": "pointer_type",
             "named": true
           }
         ]
@@ -876,6 +889,10 @@
           {
             "type": "struct_type",
             "named": true
+          },
+          {
+            "type": "union_type",
+            "named": true
           }
         ]
       },
@@ -988,6 +1005,10 @@
       "types": [
         {
           "type": "expression",
+          "named": true
+        },
+        {
+          "type": "procedure",
           "named": true
         }
       ]
@@ -1186,11 +1207,15 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
         {
           "type": "statement",
+          "named": true
+        },
+        {
+          "type": "tag",
           "named": true
         }
       ]
@@ -1229,6 +1254,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "tag",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1265,6 +1300,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "tag",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1405,21 +1450,6 @@
     }
   },
   {
-    "type": "field_identifier",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "field_type",
     "named": true,
     "fields": {},
@@ -1458,6 +1488,10 @@
           },
           {
             "type": "statement",
+            "named": true
+          },
+          {
+            "type": "tag",
             "named": true
           }
         ]
@@ -1768,7 +1802,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "expression",
@@ -1987,7 +2021,7 @@
       "required": true,
       "types": [
         {
-          "type": "identifier",
+          "type": "expression",
           "named": true
         },
         {
@@ -2007,6 +2041,10 @@
       "types": [
         {
           "type": "literal",
+          "named": true
+        },
+        {
+          "type": "member_expression",
           "named": true
         },
         {
@@ -2030,10 +2068,6 @@
         },
         {
           "type": "calling_convention",
-          "named": true
-        },
-        {
-          "type": "named_type",
           "named": true
         },
         {
@@ -2096,10 +2130,6 @@
         },
         {
           "type": "calling_convention",
-          "named": true
-        },
-        {
-          "type": "named_type",
           "named": true
         },
         {
@@ -2280,11 +2310,19 @@
       "required": false,
       "types": [
         {
-          "type": "expression",
+          "type": "array_type",
           "named": true
         },
         {
-          "type": "field_identifier",
+          "type": "call_expression",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "member_expression",
           "named": true
         },
         {
@@ -2293,10 +2331,6 @@
         },
         {
           "type": "struct_type",
-          "named": true
-        },
-        {
-          "type": "type",
           "named": true
         }
       ]
@@ -2393,6 +2427,10 @@
       "types": [
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "parenthesized_expression",
           "named": true
         },
         {
@@ -2512,6 +2550,10 @@
           {
             "type": "expression",
             "named": true
+          },
+          {
+            "type": "struct_type",
+            "named": true
           }
         ]
       },
@@ -2619,6 +2661,10 @@
         "types": [
           {
             "type": "expression",
+            "named": true
+          },
+          {
+            "type": "struct_type",
             "named": true
           }
         ]
@@ -2766,6 +2812,10 @@
             "named": false
           },
           {
+            "type": "**",
+            "named": false
+          },
+          {
             "type": "+",
             "named": false
           },
@@ -2816,6 +2866,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "tag",
+          "named": true
+        },
         {
           "type": "type",
           "named": true
@@ -2984,6 +3038,10 @@
     "named": false
   },
   {
+    "type": "\"\"\"",
+    "named": false
+  },
+  {
     "type": "\"c\"",
     "named": false
   },
@@ -3081,6 +3139,10 @@
   },
   {
     "type": "*",
+    "named": false
+  },
+  {
+    "type": "**",
     "named": false
   },
   {
@@ -3221,6 +3283,10 @@
   },
   {
     "type": "`",
+    "named": false
+  },
+  {
+    "type": "```",
     "named": false
   },
   {
