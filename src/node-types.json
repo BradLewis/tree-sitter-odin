@@ -2255,6 +2255,10 @@
           "named": true
         },
         {
+          "type": "struct_type",
+          "named": true
+        },
+        {
           "type": "type",
           "named": true
         }

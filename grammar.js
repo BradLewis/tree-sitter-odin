@@ -43,6 +43,8 @@ module.exports = grammar({
     [$._expression_no_tag, $.struct],
     // Tuple identifiers can be unnamed types or grouped result names.
     [$._tuple_type_element, $.named_type],
+    [$.struct_declaration, $.struct_type],
+    [$.field, $.struct_member],
   ],
 
   externals: $ => [
@@ -775,11 +777,9 @@ module.exports = grammar({
       'struct',
       optional($.polymorphic_parameters),
       repeat(seq($.tag, optional($.number))), // #align 16
-      repeat1(seq(
-        '{',
-        optional($._struct_members),
-        '}',
-      )),
+      '{',
+      optional($._struct_members),
+      '}',
     )),
 
     _struct_members: $ => seq(
@@ -852,6 +852,7 @@ module.exports = grammar({
 
     struct: $ => seq(
       optional(choice(
+        $.struct_type,
         seq('[', optional(choice('dynamic', '^', '?', $.expression)), ']', $.type),
         seq(choice($.identifier, $.field_identifier), optional(seq('(', commaSep($.identifier), ')'))),
       )),

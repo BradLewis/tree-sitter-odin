@@ -162,7 +162,7 @@
 
 (member_expression "." (identifier) @variable.member)
 
-(struct_type "{" (identifier) @variable.member)
+(struct_member (identifier) @variable.member)
 
 (struct_field (identifier) @variable.member "="?)
 

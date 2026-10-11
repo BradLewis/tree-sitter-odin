@@ -6122,32 +6122,24 @@
             }
           },
           {
-            "type": "REPEAT1",
-            "content": {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "{"
-                },
-                {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "SYMBOL",
-                      "name": "_struct_members"
-                    },
-                    {
-                      "type": "BLANK"
-                    }
-                  ]
-                },
-                {
-                  "type": "STRING",
-                  "value": "}"
-                }
-              ]
-            }
+            "type": "STRING",
+            "value": "{"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_struct_members"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "STRING",
+            "value": "}"
           }
         ]
       }
@@ -6832,6 +6824,10 @@
             {
               "type": "CHOICE",
               "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "struct_type"
+                },
                 {
                   "type": "SEQ",
                   "members": [
@@ -7800,6 +7796,14 @@
     [
       "_tuple_type_element",
       "named_type"
+    ],
+    [
+      "struct_declaration",
+      "struct_type"
+    ],
+    [
+      "field",
+      "struct_member"
     ]
   ],
   "precedences": [],
