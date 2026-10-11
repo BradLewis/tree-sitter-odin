@@ -1294,17 +1294,28 @@
   {
     "type": "enum_declaration",
     "named": true,
-    "fields": {},
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "expression",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "attributes",
           "named": true
         },
         {
-          "type": "expression",
+          "type": "enum_member",
           "named": true
         },
         {
@@ -1312,6 +1323,32 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "enum_member",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "expression",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1334,7 +1371,7 @@
       "required": true,
       "types": [
         {
-          "type": "expression",
+          "type": "enum_member",
           "named": true
         }
       ]

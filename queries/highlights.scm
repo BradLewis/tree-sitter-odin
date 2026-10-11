@@ -136,7 +136,7 @@
 
 (struct_declaration (identifier) @type "::")
 
-(enum_declaration (identifier) @type . "::")
+(enum_declaration . (attributes)? . name: (identifier) @type)
 
 (union_declaration (identifier) @type "::")
 
@@ -176,7 +176,8 @@
 
 (member_expression . "." (identifier) @constant)
 
-(enum_declaration "{" (identifier) @constant)
+; Match individual members rather than scanning the entire enum body.
+(enum_member (identifier) @constant)
 
 ; Macros
 

@@ -192,13 +192,13 @@ module.exports = grammar({
     enum_declaration: $ => seq(
       optional($.attributes),
       optional('using'),
-      $.expression,
+      field('name', $.expression),
       '::',
       'enum',
       optional($.type),
       '{',
       optional(seq(
-        commaSep1(seq($.identifier, optional(seq('=', $.expression)))),
+        commaSep1($.enum_member),
         optional(','),
       )),
       '}',
@@ -800,9 +800,15 @@ module.exports = grammar({
       'enum',
       optional(field('underlying_type', $.type)),
       '{',
-      commaSep1(seq($.identifier, optional(seq('=', $.expression)))),
+      commaSep1($.enum_member),
       optional(','),
       '}',
+    ),
+
+    // Separate members let incremental parsing and queries skip unrelated entries.
+    enum_member: $ => seq(
+      field('name', $.identifier),
+      optional(seq('=', field('value', $.expression))),
     ),
 
     bit_field_type: $ => seq(
